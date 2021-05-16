@@ -1,9 +1,10 @@
+using Assets.Scripts.Fysikz.NucleonEngine.Collections;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class NucleonBoxCollider : MonoBehaviour, NucleonCollider
+public class NucleonBoxCollider : NucleonCollider
 {
     [Header("General Settings")]
     public bool Trigger;
@@ -48,6 +49,30 @@ public class NucleonBoxCollider : MonoBehaviour, NucleonCollider
 
     void Update()
     {
+        if (AllowSleeping)
+        {
+            if (transform.hasChanged)
+            {
+                SleepTimer += Time.deltaTime;
+            }
+            else
+            {
+                SleepTimer = 0;
+            }
+
+            if (SleepTimer >= 2.5f)
+            {
+                Sleeping = true;
+            }
+            else
+            {
+                Sleeping = false;
+            }
+        }
+    }
+
+    public override void NucleonUpdate()
+    {
         CubeModel.UpdateBounds(transform, Position, Scale);
         Colliding = ActiveCollisions.Count > 0;
         DeltaPosition = (transform.position + Position) - LastPosition;
@@ -56,30 +81,34 @@ public class NucleonBoxCollider : MonoBehaviour, NucleonCollider
         FetchCollisions();
     }
 
-    public void FetchCollisions()
+    public override void FetchCollisions()
     {
+
         foreach (NucleonBoxCollider BoxCollider in NucleonManager.Colliders)
         {
-            if(BoxCollider != this)
+            if (BoxCollider != this)
             {
-                bool Colliding = NucleonIntersector.CC_I(CubeModel, BoxCollider.CubeModel);
-                CollisionCheck(Colliding, BoxCollider);
-                
-                if (Colliding && DebugCollisionPoints)
+                if (Vector3.Distance(this.Position, BoxCollider.Position) < 1f)
                 {
-                    List<Vector3> CollidingPointsFetchList = new List<Vector3>();
-                    foreach (Vector3 Vertice in CubeModel.Vertices)
+                    bool Colliding = NucleonIntersector.CC_I(CubeModel, BoxCollider.CubeModel);
+                    CollisionCheck(Colliding, BoxCollider);
+
+                    if (Colliding && DebugCollisionPoints)
                     {
-                        if (NucleonIntersector.PC_I(Vertice, BoxCollider.CubeModel))
+                        List<Vector3> CollidingPointsFetchList = new List<Vector3>();
+                        foreach (Vector3 Vertice in CubeModel.Vertices)
                         {
-                            CollidingPointsFetchList.Add(Vertice);
+                            if (NucleonIntersector.PC_I(Vertice, BoxCollider.CubeModel))
+                            {
+                                CollidingPointsFetchList.Add(Vertice);
+                            }
                         }
+                        CollidingPoints = CollidingPointsFetchList;
                     }
-                    CollidingPoints = CollidingPointsFetchList;
-                }
-                if (!Colliding && DebugCollisionPoints)
-                {
-                    CollidingPoints = new List<Vector3>();
+                    if (!Colliding && DebugCollisionPoints)
+                    {
+                        CollidingPoints = new List<Vector3>();
+                    }
                 }
             }
         }

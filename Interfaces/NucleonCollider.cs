@@ -1,4 +1,12 @@
-public interface NucleonCollider 
+using UnityEngine;
+
+public abstract class NucleonCollider : MonoBehaviour
 {
-    void FetchCollisions();
+    public bool AllowSleeping = true;
+
+    public bool Sleeping;
+    public float SleepTimer = 0f;
+
+    public abstract void FetchCollisions();
+    public abstract void NucleonUpdate();
 }
