@@ -22,8 +22,14 @@ public class NucleonBoxCollider : MonoBehaviour, NucleonCollider
 
     private NucleonManager NucleonManager;
 
+    private NucleonBody body;
+
     void Awake()
     {
+        if(GetComponent<NucleonBody>() != null)
+        {
+            body = GetComponent<NucleonBody>();
+        }
         CubeModel = new CubeModel();
         CubeModel.UpdateBounds(transform, Position, Scale);
 
@@ -84,7 +90,7 @@ public class NucleonBoxCollider : MonoBehaviour, NucleonCollider
             if (!ActiveCollisions.Contains(BoxCollider))
             {
                 ActiveCollisions.Add(BoxCollider);
-                GetComponent<NucleonBody>()?.OnNucleonCollisionEnter(Collision);
+                body?.OnNucleonCollisionEnter(Collision);
             }
         }
         else
@@ -97,7 +103,7 @@ public class NucleonBoxCollider : MonoBehaviour, NucleonCollider
                 CollisionExit.ExitDirection = DeltaPosition;
 
                 ActiveCollisions.Remove(BoxCollider);
-                GetComponent<NucleonBody>()?.OnNucleonCollisionExit(CollisionExit);
+                body?.OnNucleonCollisionExit(CollisionExit);
             }
         }
     }
